@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LiteLab | Lighting Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./three.module.js"
+      }
+    }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from './OrbitControls.js';
+    window.THREE = THREE;
+    window.OrbitControls = OrbitControls;
+    console.log("3D System Initialized Globally");
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+  <div class="bg-blur-ambient"></div>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <span class="logo-lite">LITE</span><span class="logo-lab">LAB</span>
+        <span class="logo-register">®</span>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-tab="dashboard">Dashboard</button>
+        <button class="nav-tab" data-tab="compare">Compare</button>
+        <button class="nav-tab" data-tab="analytics">Analytics</button>
+        <button class="nav-tab" data-tab="recommend">Recommend</button>
+        <button class="nav-tab" data-tab="workspace">Workspace</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- DASHBOARD TAB -->
+  <section class="tab-content active" id="dashboard">
+    <header class="dashboard-header">
+      <div>
+        <h1>Intelligence Dashboard</h1>
+        <p class="subtitle">Analyze lighting efficiency with professional precision</p>
+      </div>
+      <div class="header-controls">
+        <label>Location <select id="location">
+            <option>Living Room</option>
+            <option>Office</option>
+            <option>Gallery</option>
+            <option>Museum</option>
+            <option>Warehouse</option>
+          </select></label>
+        <label>Usage (h/d) <input type="number" id="usageHours" value="6" min="1"></label>
+        <label>Rate (₹/kWh) <input type="number" id="rate" value="8" step="0.1"></label>
+      </div>
+    </header>
+
+    <div class="dashboard-grid">
+      <div class="panel">
+        <h2>Fixture Selection</h2>
+        <select id="lightSelect" class="select-large">
+          <option value="">-- Select a product --</option>
+        </select>
+
+        <div class="specs-card" id="specsCard" style="display: none;">
+          <div class="spec-row">
+            <span class="spec-label">Category</span>
+            <span class="spec-value" id="category">--</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-label">Type</span>
+            <span class="spec-value" id="type">--</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-label">Wattage</span>
+            <span class="spec-value" id="wattage">--</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-label">Lumens</span>
+            <span class="spec-value" id="lumens">--</span>
+          </div>
+          <div class="spec-row highlight-row">
+            <span class="spec-label">Efficiency</span>
+            <span class="spec-value" id="efficiency">--</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-label">Features</span>
+            <span class="spec-value" id="features">--</span>
+          </div>
+        </div>
+
+        <div class="quantity-control" style="margin-top: 2rem;">
+          <label class="form-label">Number of Fixtures</label>
+          <input type="number" id="quantity" value="1" min="1">
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Energy & Cost Impact</h2>
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-label">Daily</div>
+            <div class="metric-value"><span id="dailyEnergy">0</span> <small
+                style="font-size: 14px; opacity: 0.5;">kWh</small></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Monthly</div>
+            <div class="metric-value"><span id="monthlyEnergy">0</span> <small
+                style="font-size: 14px; opacity: 0.5;">kWh</small></div>
+          </div>
+          <div class="metric-card highlight-card">
+            <div class="metric-label">Monthly Cost</div>
+            <div class="metric-value">₹<span id="monthlyCost">0</span></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Annual Cost</div>
+            <div class="metric-value">₹<span id="annualCost">0</span></div>
+          </div>
+        </div>
+
+        <div class="efficiency-section" style="margin-top: 2rem;">
+          <div class="score-label">Efficiency Rating</div>
+          <div class="score-bar">
+            <div class="score-fill" id="scoreBar"></div>
+          </div>
+          <p class="score-text" id="scoreText">--</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>ROI & Benchmarking</h2>
+        <div class="roi-inputs">
+          <label>Baseline Wattage
+            <input type="number" id="baselineWatt" value="40">
+          </label>
+          <label>Upgrade Cost (₹)
+            <input type="number" id="upgradeCost" value="25000">
+          </label>
+        </div>
+        <div class="roi-metrics">
+          <div><span>Annual Savings</span><strong id="annualSavings">₹0</strong></div>
+          <div><span>Payback</span><strong id="paybackPeriod">--</strong></div>
+        </div>
+        <p class="roi-note" id="roiNote"></p>
+
+        <div class="comparison-row"
+          style="margin-top: 2rem; border-top: 1px solid var(--border-glass); padding-top: 1.5rem;">
+          <div style="display:flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span class="spec-label">vs Industry Avg</span>
+            <span id="efficiencyCompValue" style="color: var(--primary); font-weight: 700;">0%</span>
+          </div>
+          <div class="score-bar" style="height: 6px;">
+            <div class="score-fill" id="efficiencyComp"></div>
+          </div>
+          <div id="costPer1000" style="font-size: 11px; margin-top: 1rem; opacity: 0.6;"></div>
+          <div id="recommendation" class="rec-badge" style="display:inline-block; margin-top: 1rem;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARE TAB -->
+  <section class="tab-content" id="compare">
+    <div class="recommendation-container">
+      <h1 style="margin-bottom: 2rem;">Product Benchmarking</h1>
+      <div class="compare-container" style="display: grid; grid-template-columns: 240px 1fr; gap: 32px;">
+        <aside class="panel">
+          <h3>Filter Categories</h3>
+          <div class="filter-group">
+            <label><input type="checkbox" class="category-filter" value="Art & Culture"> <span>Art &
+                Culture</span></label>
+            <label><input type="checkbox" class="category-filter" value="Workplace"> <span>Workplace</span></label>
+            <label><input type="checkbox" class="category-filter" value="Residential"> <span>Residential</span></label>
+            <label><input type="checkbox" class="category-filter" value="Commercial"> <span>Commercial</span></label>
+            <label><input type="checkbox" class="category-filter" value="Facade"> <span>Facade</span></label>
+            <label><input type="checkbox" class="category-filter" value="Hospitality"> <span>Hospitality</span></label>
+            <label><input type="checkbox" class="category-filter" value="Infrastructure">
+              <span>Infrastructure</span></label>
+          </div>
+          <button class="btn-secondary" id="resetFilters" style="width: 100%; margin-top: 1rem;">Reset</button>
+        </aside>
+        <div id="comparisonTable"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANALYTICS TAB -->
+  <section class="tab-content" id="analytics">
+    <div class="analytics-grid">
+      <div class="chart-panel">
+        <h3>Efficiency Breakdown</h3><canvas id="efficiencyChart"></canvas>
+      </div>
+      <div class="chart-panel">
+        <h3>Lumen Distribution</h3><canvas id="lumensChart"></canvas>
+      </div>
+      <div class="chart-panel">
+        <h3>Top Performance Matrix</h3><canvas id="topEfficiencyChart"></canvas>
+      </div>
+      <div class="chart-panel">
+        <h3>Cost Efficiency Index</h3><canvas id="costChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- RECOMMENDATIONS TAB -->
+  <section class="tab-content" id="recommend">
+    <div class="recommendation-container">
+      <div class="requirement-section">
+        <h2 style="margin-bottom: 2rem;">Smart Recommendations</h2>
+        <div class="requirement-grid">
+          <div class="req-input">
+            <label>Min. Lumens</label>
+            <input type="number" id="minLumens" class="input-modern" value="500">
+          </div>
+          <div class="req-input">
+            <label>Max. Wattage</label>
+            <input type="number" id="maxWattage" class="input-modern" value="50">
+          </div>
+          <div class="req-input">
+            <label>Priority</label>
+            <select id="priority" class="input-modern">
+              <option value="efficiency">Efficiency</option>
+              <option value="cost">Cost</option>
+              <option value="lumens">Lumens</option>
+            </select>
+          </div>
+          <div class="req-input">
+            <label>Category</label>
+            <select id="appCategory" class="input-modern">
+              <option value="">All Categories</option>
+              <option value="Art & Culture">Art & Culture</option>
+              <option value="Workplace">Workplace</option>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Facade">Facade</option>
+              <option value="Hospitality">Hospitality</option>
+              <option value="Infrastructure">Infrastructure</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" id="getRecommendations">Generate Proposals</button>
+      </div>
+      <div id="recommendationsResults"></div>
+    </div>
+  </section>
+
+  <!-- WORKSPACE TAB -->
+  <section class="tab-content" id="workspace">
+    <div class="workspace-container">
+      <aside class="workspace-panel" id="fixtureSidebar">
+        <h3>Fixture Library</h3>
+        <div id="fixtureLibrary" style="margin-top: 1.5rem;"></div>
+      </aside>
+      <div class="resizer" data-target="left"></div>
+
+      <main class="workspace-main">
+        <div class="navbar"
+          style="padding: 1rem; background: rgba(0,0,0,0.5); border-bottom-color: rgba(255,255,255,0.05);">
+          <div class="header-controls" style="justify-content: flex-start; gap: 20px; flex-wrap: wrap;">
+            <label>W (m) <input type="number" id="roomWidth" value="12" class="input-mini"></label>
+            <label>H (m) <input type="number" id="roomHeight" value="8" class="input-mini"></label>
+            <label>Grid <input type="number" id="gridSize" value="0.5" step="0.1" class="input-mini"></label>
+            <select id="workspacePreset" style="width: 120px;">
+              <option value="">Preset</option>
+              <option value="gallery">Gallery</option>
+              <option value="office">Office</option>
+            </select>
+            <label style="flex-direction: row; align-items: center; gap: 4px;">
+              <input type="checkbox" id="toggleHeatmap" checked> Heat
+            </label>
+            <button class="btn-secondary" id="clearLayout">Clear</button>
+            <button class="btn-secondary" id="refreshThree">Refresh 3D</button>
+            <button class="btn-secondary" id="exportProject">JSON</button>
+            <button class="btn-secondary" id="exportPdf">PDF</button>
+          </div>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="floorCanvas"></canvas>
+          <div class="canvas-hint">Drag fixtures to reposition</div>
+        </div>
+        <div class="three-wrap">
+          <div class="three-header">
+            <p style="font-size: 10px; color: var(--primary); font-weight: 700;">3D SPATIAL PREVIEW</p>
+          </div>
+          <div id="threeContainer" style="height: 100%;"></div>
+        </div>
+      </main>
+
+      <div class="resizer" data-target="right"></div>
+
+      <aside class="workspace-panel" id="summarySidebar" style="border-left: 1px solid var(--border-glass);">
+        <h3>Project Summary</h3>
+        <input type="text" id="projectName" placeholder="Project Name" class="input-modern" style="margin: 1rem 0;">
+        <div class="specs-card" style="margin-bottom: 1.5rem;">
+          <div class="spec-row"><span>Units</span><strong id="summaryCount">0</strong></div>
+          <div class="spec-row"><span>Total Power</span><strong id="summaryWatt">0 W</strong></div>
+          <div class="spec-row"><span>Total Lumens</span><strong id="summaryLumens">0 lm</strong></div>
+          <div class="spec-row"><span>Power Density</span><strong id="summaryDensity">0 W/m²</strong></div>
+          <div class="spec-row highlight-row"><span>Monthly Cost</span><strong id="summaryCost">₹0</strong></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem;">
+          <button class="btn-primary" id="saveProject">Save</button>
+          <button class="btn-secondary" id="shareProject">Share</button>
+        </div>
+        <div class="load-section" style="margin-bottom: 2rem;">
+          <select id="loadProject" style="width: 100%; margin-bottom: 8px;">
+            <option value="">Load Saved...</option>
+          </select>
+          <button class="btn-secondary" id="loadProjectBtn" style="width: 100%;">Load Selected</button>
+        </div>
+        <div class="bom-section">
+          <h4>Bill of Materials</h4>
+          <ul id="bomList" style="list-style: none; padding: 0;"></ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <script src="script.js" defer></script>
+</body>
+
+</html>
